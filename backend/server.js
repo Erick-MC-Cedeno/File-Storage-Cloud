@@ -4,33 +4,30 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
+import authRoutes from "./routes/auth-route/auth.routes.js";
+import userRoutes from "./routes/user-route/user.routes.js";
 
 import connectToMongoDB from "./db/connectToMongoDB.js";
 
 dotenv.config();
 
 const __dirname = path.resolve();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT;
 
-// Crear la app de Express
-const app = express();
-
-// Middlewares
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ origin: "http://localhost:3000" })); 
 
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 
-
-// Servir frontend
 app.use(express.static(path.join(__dirname, "/frontend/dist")));
 
 app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
 });
 
-// Iniciar servidor
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     connectToMongoDB();
     console.log(`Server Running on port ${PORT}`);
 });
