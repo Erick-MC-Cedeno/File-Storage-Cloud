@@ -11,23 +11,31 @@ import connectToMongoDB from "./db/connectToMongoDB.js";
 
 dotenv.config();
 
+const app = express();
 const __dirname = path.resolve();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 
+// Middlewares
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ origin: "http://localhost:3000" })); 
+app.use(cors({ origin: "http://localhost:3000" }));
 
+// Rutas
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 
-app.use(express.static(path.join(__dirname, "/frontend/dist")));
+// Servir frontend
+app.use(express.static(path.join(__dirname, "frontend", "dist")));
 
 app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
+  res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
 });
 
-server.listen(PORT, () => {
-    connectToMongoDB();
-    console.log(`Server Running on port ${PORT}`);
+// Conectar a MongoDB y arrancar el servidor
+connectToMongoDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}).catch(err => {
+  console.error("Error connecting to MongoDB:", err.message);
 });
