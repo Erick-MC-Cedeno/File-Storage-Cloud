@@ -7,6 +7,7 @@ import cors from "cors";
 import connectToMongoDB from "./db/connectToMongoDB.js";
 import authRoutes from "./routes/auth-route/auth.routes.js";
 import userRoutes from "./routes/user-route/user.routes.js";
+import filesRoutes from "./routes/files-route/files.routes.js";
 
 dotenv.config();
  
@@ -74,15 +75,24 @@ setInterval(() => {
 // Mount rate limiter globally (applies to all routes)
 app.use(rateLimiter);
 
+
+
 // Connect to DB
 connectToMongoDB();
+
+
 
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/files", filesRoutes);
+
+
 
 // Health check
 app.get("/health", (_req, res) => res.status(200).json({ status: "ok" }));
+
+
 
 // 404 handler
 app.use((req, res, next) => {
