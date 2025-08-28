@@ -1,5 +1,5 @@
 // API configuration and base functions
-const API_BASE_URL = "https://stunning-zebra-9rq7959q59v29xpv-4000.app.github.dev/api"
+const API_BASE_URL = "https://ominous-space-broccoli-9rq7959qwxj3p7j9-4000.app.github.dev/api"
 
 export interface User {
   id: string
