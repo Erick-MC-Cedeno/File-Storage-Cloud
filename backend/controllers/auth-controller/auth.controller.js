@@ -40,7 +40,6 @@ export const signup = async (req, res) => {
 
         await newUser.save();
 
-        
         generateTokenAndSetCookie(newUser._id, res);
 
         const imageBase64 = newUser.image ? `data:image/jpeg;base64,${newUser.image.toString('base64')}` : null;
@@ -56,6 +55,9 @@ export const signup = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+
+
 
 export const login = async (req, res) => {
     try {
@@ -87,6 +89,9 @@ export const login = async (req, res) => {
     }
 };
 
+
+
+
 export const fetchAllUsersController = async (req, res) => {
     try {
         const keyword = req.query.search
@@ -115,6 +120,9 @@ export const fetchAllUsersController = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+
+
 
 export const logout = (req, res) => {
     try {
