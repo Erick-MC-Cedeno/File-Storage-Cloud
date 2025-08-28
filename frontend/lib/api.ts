@@ -36,7 +36,7 @@ async function apiFetch<T = any>(endpoint: string, options: RequestInit = {}): P
   const url = `${API_BASE_URL}${endpoint}`
 
   const config: RequestInit = {
-    credentials: "include", // Include cookies for authentication
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
       ...options.headers,
@@ -44,17 +44,47 @@ async function apiFetch<T = any>(endpoint: string, options: RequestInit = {}): P
     ...options,
   }
 
+  const logBody = config.body
+    ? (() => {
+        try {
+          const parsed = JSON.parse(config.body as string)
+          const filtered = { ...parsed }
+          if (filtered.password) filtered.password = "***HIDDEN***"
+          if (filtered.confirmPassword) filtered.confirmPassword = "***HIDDEN***"
+          return JSON.stringify(filtered)
+        } catch {
+          return config.body
+        }
+      })()
+    : undefined
+
+  console.log("[v0] API Request:", {
+    url,
+    method: config.method || "GET",
+    headers: config.headers,
+    body: logBody,
+  })
+
   try {
     const response = await fetch(url, config)
 
+    console.log("[v0] API Response:", {
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries()),
+    })
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ message: "Network error" }))
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+      console.log("[v0] API Error Data:", errorData)
+      throw new Error(errorData?.message ?? `HTTP error! status: ${response.status}`)
     }
 
-    return await response.json()
+    const responseData = await response.json()
+    console.log("[v0] API Success Data:", responseData)
+    return responseData
   } catch (error) {
-    console.error("API Error:", error)
+    console.error("[v0] API Error:", error)
     throw error
   }
 }
@@ -65,18 +95,23 @@ export const authApi = {
     fullName: string
     username: string
     password: string
+    confirmPassword: string
     gender: string
-  }): Promise<AuthResponse> => {
+  }): Promise<any> => {
+    const logData = { ...data, password: "***HIDDEN***", confirmPassword: "***HIDDEN***" }
+    console.log("[v0] Signup data being sent:", logData)
+
+    if (!data.fullName || !data.username || !data.password || !data.gender) {
+      throw new Error("All fields are required")
+    }
+
     return apiFetch("/auth/signup", {
       method: "POST",
       body: JSON.stringify(data),
     })
   },
 
-  login: async (data: {
-    username: string
-    password: string
-  }): Promise<AuthResponse> => {
+  login: async (data: { username: string; password: string }): Promise<AuthResponse> => {
     return apiFetch("/auth/login", {
       method: "POST",
       body: JSON.stringify(data),
@@ -105,20 +140,18 @@ export const filesApi = {
 
     return apiFetch("/files/upload", {
       method: "POST",
-      headers: {}, // Remove Content-Type to let browser set it for FormData
+      headers: {}, // Remove Content-Type for FormData
       body: formData,
     })
   },
 
-  download: async (id: string): Promise<Blob> => {
+  getById: async (id: string): Promise<Blob> => {
     const response = await fetch(`${API_BASE_URL}/files/${id}`, {
       credentials: "include",
     })
-
     if (!response.ok) {
-      throw new Error("Failed to download file")
+      throw new Error("Failed to get file")
     }
-
     return response.blob()
   },
 

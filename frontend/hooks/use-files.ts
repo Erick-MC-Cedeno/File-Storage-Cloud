@@ -16,7 +16,6 @@ export function useFiles() {
       setUploadProgress(0)
 
       try {
-        // Simulate upload progress
         const progressInterval = setInterval(() => {
           setUploadProgress((prev) => {
             if (prev === null) return 10
@@ -26,12 +25,22 @@ export function useFiles() {
         }, 200)
 
         const response = await filesApi.upload(file)
-
         clearInterval(progressInterval)
         setUploadProgress(100)
 
-        if (response.success && response.data) {
-          setFiles((prev) => [response.data!, ...prev])
+        // 🚀 Adaptar a la respuesta de tu backend (fileId y fileName)
+        if (response.fileId && response.fileName) {
+          const fileItem: FileItem = {
+            id: response.fileId,
+            filename: response.fileName,
+            originalName: file.name,
+            mimetype: file.type,
+            size: file.size,
+            uploadedAt: new Date().toISOString(),
+            userId: "", // opcional, depende de lo que devuelva el backend
+          }
+
+          setFiles((prev) => [fileItem, ...prev])
           toast({
             title: "Success",
             description: "File uploaded successfully",
@@ -39,7 +48,7 @@ export function useFiles() {
 
           setTimeout(() => setUploadProgress(null), 1000)
         } else {
-          throw new Error(response.message || "Upload failed")
+          throw new Error("Invalid server response")
         }
       } catch (error) {
         setUploadProgress(null)
@@ -56,29 +65,19 @@ export function useFiles() {
     [toast],
   )
 
-  const downloadFile = useCallback(
-    async (id: string, filename: string) => {
+  // 👉 solo trae el archivo por ID (no descarga automáticamente)
+  const getFileById = useCallback(
+    async (id: string): Promise<Blob | null> => {
       try {
-        const blob = await filesApi.download(id)
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement("a")
-        a.href = url
-        a.download = filename
-        document.body.appendChild(a)
-        a.click()
-        window.URL.revokeObjectURL(url)
-        document.body.removeChild(a)
-
-        toast({
-          title: "Success",
-          description: "File downloaded successfully",
-        })
+        const blob = await filesApi.getById(id)
+        return blob
       } catch (error) {
         toast({
           title: "Error",
-          description: "Failed to download file",
+          description: "Failed to fetch file",
           variant: "destructive",
         })
+        return null
       }
     },
     [toast],
@@ -88,15 +87,11 @@ export function useFiles() {
     async (id: string) => {
       try {
         const response = await filesApi.delete(id)
-        if (response.success) {
-          setFiles((prev) => prev.filter((file) => file.id !== id))
-          toast({
-            title: "Success",
-            description: "File deleted successfully",
-          })
-        } else {
-          throw new Error(response.message || "Delete failed")
-        }
+        setFiles((prev) => prev.filter((file) => file.id !== id))
+        toast({
+          title: "Success",
+          description: response.message || "File deleted successfully",
+        })
       } catch (error) {
         toast({
           title: "Error",
@@ -114,7 +109,7 @@ export function useFiles() {
     isLoading,
     uploadProgress,
     uploadFile,
-    downloadFile,
+    getFileById, // retorna el Blob
     deleteFile,
   }
 }

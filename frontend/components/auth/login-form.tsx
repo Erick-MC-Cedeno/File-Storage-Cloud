@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
+import { healthApi } from "@/lib/api"
 
 export function LoginForm() {
   const [formData, setFormData] = useState({
@@ -38,13 +39,36 @@ export function LoginForm() {
     }
 
     try {
+      console.log("[v0] Starting login process...")
+
+      console.log("[v0] Checking server connectivity...")
+      try {
+        await healthApi.check()
+        console.log("[v0] Server is reachable")
+      } catch (healthError) {
+        console.error("[v0] Server health check failed:", healthError)
+        toast({
+          title: "Connection Error",
+          description: "Cannot connect to server. Please check if the server is running.",
+          variant: "destructive",
+        })
+        return
+      }
+
       await login(formData.username, formData.password)
+      console.log("[v0] Login successful, checking auth state...")
+
+      setTimeout(() => {
+        console.log("[v0] Attempting redirect to:", redirectTo)
+        window.location.href = redirectTo
+      }, 200)
+
       toast({
         title: "Success",
         description: "Logged in successfully",
       })
-      router.push(redirectTo)
     } catch (error) {
+      console.log("[v0] Login failed:", error)
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Login failed",
