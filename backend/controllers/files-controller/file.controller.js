@@ -40,6 +40,8 @@ const uploadFile = async (req, res) => {
   }
 };
 
+
+
 // Download file
 const getFile = async (req, res) => {
   try {
@@ -52,6 +54,8 @@ const getFile = async (req, res) => {
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
+
+
 
 // Delete file
 const deleteFile = async (req, res) => {
