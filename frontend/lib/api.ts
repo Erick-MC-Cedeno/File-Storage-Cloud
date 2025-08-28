@@ -1,5 +1,5 @@
 // API configuration and base functions
-const API_BASE_URL = "https://ominous-space-broccoli-9rq7959qwxj3p7j9-4000.app.github.dev/api"
+const API_BASE_URL = "https://curly-journey-x795wpw94v42qjq-4000.app.github.dev/api"
 
 export interface User {
   id: string
@@ -31,9 +31,11 @@ export interface ApiResponse<T = any> {
   data?: T
 }
 
-// Base fetch function with error handling
-async function apiFetch<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
+// Base fetch function with error handling and retry logic
+async function apiFetch<T = any>(endpoint: string, options: RequestInit = {}, retryCount = 0): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`
+  const maxRetries = 3
+  const baseDelay = 1000 // 1 second
 
   const config: RequestInit = {
     credentials: "include",
@@ -44,47 +46,40 @@ async function apiFetch<T = any>(endpoint: string, options: RequestInit = {}): P
     ...options,
   }
 
-  const logBody = config.body
-    ? (() => {
-        try {
-          const parsed = JSON.parse(config.body as string)
-          const filtered = { ...parsed }
-          if (filtered.password) filtered.password = "***HIDDEN***"
-          if (filtered.confirmPassword) filtered.confirmPassword = "***HIDDEN***"
-          return JSON.stringify(filtered)
-        } catch {
-          return config.body
-        }
-      })()
-    : undefined
-
-  console.log("[v0] API Request:", {
-    url,
-    method: config.method || "GET",
-    headers: config.headers,
-    body: logBody,
-  })
-
   try {
     const response = await fetch(url, config)
 
-    console.log("[v0] API Response:", {
-      status: response.status,
-      statusText: response.statusText,
-      headers: Object.fromEntries(response.headers.entries()),
-    })
+    if (response.status === 429) {
+      if (retryCount < maxRetries) {
+        const delay = baseDelay * Math.pow(2, retryCount) + Math.random() * 1000 // Add jitter
+
+        await new Promise((resolve) => setTimeout(resolve, delay))
+        return apiFetch(endpoint, options, retryCount + 1)
+      } else {
+        throw new Error("Too many requests. Please wait a moment before uploading more files.")
+      }
+    }
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: "Network error" }))
-      console.log("[v0] API Error Data:", errorData)
+      let errorData: any
+      try {
+        errorData = await response.json()
+      } catch (parseError) {
+        errorData = { message: `HTTP error! status: ${response.status}` }
+      }
+
       throw new Error(errorData?.message ?? `HTTP error! status: ${response.status}`)
     }
 
-    const responseData = await response.json()
-    console.log("[v0] API Success Data:", responseData)
+    let responseData: T
+    try {
+      responseData = await response.json()
+    } catch (parseError) {
+      throw new Error("Invalid response format from server")
+    }
+
     return responseData
   } catch (error) {
-    console.error("[v0] API Error:", error)
     throw error
   }
 }
@@ -98,9 +93,6 @@ export const authApi = {
     confirmPassword: string
     gender: string
   }): Promise<any> => {
-    const logData = { ...data, password: "***HIDDEN***", confirmPassword: "***HIDDEN***" }
-    console.log("[v0] Signup data being sent:", logData)
-
     if (!data.fullName || !data.username || !data.password || !data.gender) {
       throw new Error("All fields are required")
     }
@@ -143,6 +135,10 @@ export const filesApi = {
       headers: {}, // Remove Content-Type for FormData
       body: formData,
     })
+  },
+
+  getAll: async (): Promise<{ files: FileItem[] }> => {
+    return apiFetch("/files")
   },
 
   getById: async (id: string): Promise<Blob> => {

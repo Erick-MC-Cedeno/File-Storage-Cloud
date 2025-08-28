@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { useFiles } from "@/hooks/use-files"
-import { Upload, FileIcon } from "lucide-react"
+import { Upload, FileIcon, Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface FileUploadProps {
@@ -14,20 +14,18 @@ interface FileUploadProps {
 }
 
 export function FileUpload({ onUploadComplete }: FileUploadProps) {
-  const { uploadFile, isLoading, uploadProgress } = useFiles()
+  const { uploadFiles, isLoading, uploadProgress, uploadQueue, currentUpload } = useFiles()
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
-      for (const file of acceptedFiles) {
-        try {
-          await uploadFile(file)
-          onUploadComplete?.()
-        } catch (error) {
-          console.error("Upload failed:", error)
-        }
+      try {
+        await uploadFiles(acceptedFiles)
+        onUploadComplete?.()
+      } catch (error) {
+        console.error("Upload failed:", error)
       }
     },
-    [uploadFile, onUploadComplete],
+    [uploadFiles, onUploadComplete],
   )
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -57,14 +55,23 @@ export function FileUpload({ onUploadComplete }: FileUploadProps) {
 
             {isLoading ? (
               <div className="space-y-2 w-full max-w-xs">
-                <p className="text-sm text-muted-foreground">Uploading...</p>
+                <p className="text-sm text-muted-foreground">
+                  {uploadQueue > 0 ? `Uploading... (${uploadQueue} files in queue)` : "Uploading..."}
+                </p>
                 {uploadProgress !== null && <Progress value={uploadProgress} className="w-full" />}
+                {uploadQueue > 1 && (
+                  <div className="flex items-center justify-center space-x-2 text-xs text-muted-foreground">
+                    <Clock className="h-3 w-3" />
+                    <span>Processing files sequentially to avoid rate limits</span>
+                  </div>
+                )}
               </div>
             ) : (
               <>
                 <div className="space-y-2">
                   <p className="text-lg font-medium">{isDragActive ? "Drop files here" : "Upload your files"}</p>
                   <p className="text-sm text-muted-foreground">Drag and drop files here, or click to select files</p>
+                  <p className="text-xs text-muted-foreground">Multiple files will be uploaded sequentially</p>
                 </div>
                 <Button variant="outline" disabled={isLoading}>
                   Select Files
