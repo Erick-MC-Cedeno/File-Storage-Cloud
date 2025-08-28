@@ -24,7 +24,10 @@ export function useFiles() {
     try {
       setIsLoading(true)
       const response = await filesApi.getAll()
-      setFiles(response.files || [])
+      setFiles(response.data?.map(f => ({
+        ...f,
+        uploadedAt: f.uploadedAt || new Date().toISOString(), // asegura fecha válida
+      })) || [])
     } catch (error) {
       console.error("Error fetching files:", error)
       toast({
@@ -39,7 +42,7 @@ export function useFiles() {
 
   useEffect(() => {
     fetchFiles()
-  }, []) // Empty dependency array to run only once on mount
+  }, [])
 
   const processUploadQueue = useCallback(async () => {
     if (isProcessingQueue.current) return
@@ -72,7 +75,7 @@ export function useFiles() {
             originalName: item.file.name,
             mimetype: item.file.type,
             size: item.file.size,
-            uploadedAt: new Date().toISOString(),
+            uploadedAt: new Date().toISOString(), // siempre fecha válida
             userId: response.data.userId || "",
           }
 
@@ -88,7 +91,9 @@ export function useFiles() {
         console.error("Upload error:", error)
         toast({
           title: "Upload Failed",
-          description: `${item.file.name}: ${error instanceof Error ? error.message : "Upload failed"}`,
+          description: `${item.file.name}: ${
+            error instanceof Error ? error.message : "Upload failed"
+          }`,
           variant: "destructive",
         })
       }
@@ -101,16 +106,11 @@ export function useFiles() {
     setCurrentUpload(null)
     setIsLoading(false)
     isProcessingQueue.current = false
-
-    // Files are already updated locally when uploaded successfully
   }, [toast])
 
   const uploadFiles = useCallback(
     async (files: File[]) => {
-      if (!files || !Array.isArray(files) || files.length === 0) {
-        console.warn("No files provided to uploadFiles")
-        return
-      }
+      if (!files || !Array.isArray(files) || files.length === 0) return
 
       const newItems = files.map((file) => ({
         file,
@@ -121,9 +121,7 @@ export function useFiles() {
       setUploadQueue((prev) => [...prev, ...newItems])
 
       setTimeout(() => {
-        if (!isProcessingQueue.current) {
-          processUploadQueue()
-        }
+        if (!isProcessingQueue.current) processUploadQueue()
       }, 0)
     },
     [processUploadQueue],
@@ -132,8 +130,7 @@ export function useFiles() {
   const getFileById = useCallback(
     async (id: string): Promise<Blob | null> => {
       try {
-        const blob = await filesApi.getById(id)
-        return blob
+        return await filesApi.getById(id)
       } catch (error) {
         toast({
           title: "Error",
@@ -166,18 +163,32 @@ export function useFiles() {
     [toast],
   )
 
+  const getAllFiles = useCallback(async () => {
+    try {
+      const response = await filesApi.getAll()
+      setFiles(response.data?.map(f => ({
+        ...f,
+        uploadedAt: f.uploadedAt || new Date().toISOString(),
+      })) || [])
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch files",
+        variant: "destructive",
+      })
+    }
+  }, [toast])
+
   const downloadFile = useCallback(
     async (id: string, filename: string) => {
       try {
         const blob = await filesApi.getById(id)
-
         const url = window.URL.createObjectURL(blob)
         const link = document.createElement("a")
         link.href = url
         link.download = filename
         document.body.appendChild(link)
         link.click()
-
         document.body.removeChild(link)
         window.URL.revokeObjectURL(url)
 
@@ -209,5 +220,6 @@ export function useFiles() {
     deleteFile,
     downloadFile,
     fetchFiles,
+    getAllFiles,
   }
 }

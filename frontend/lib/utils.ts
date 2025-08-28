@@ -17,8 +17,12 @@ export function formatBytes(bytes: number, decimals = 2) {
   return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i]
 }
 
-export function formatDate(dateString: string) {
+export function formatDate(dateString?: string | null) {
+  if (!dateString) return "Unknown date"
+
   const date = new Date(dateString)
+  if (isNaN(date.getTime())) return "Invalid date"
+
   return new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "short",

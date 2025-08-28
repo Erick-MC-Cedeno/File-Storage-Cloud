@@ -52,7 +52,6 @@ async function apiFetch<T = any>(endpoint: string, options: RequestInit = {}, re
     if (response.status === 429) {
       if (retryCount < maxRetries) {
         const delay = baseDelay * Math.pow(2, retryCount) + Math.random() * 1000 // Add jitter
-
         await new Promise((resolve) => setTimeout(resolve, delay))
         return apiFetch(endpoint, options, retryCount + 1)
       } else {
@@ -137,7 +136,7 @@ export const filesApi = {
     })
   },
 
-  getAll: async (): Promise<{ files: FileItem[] }> => {
+  getAll: async (): Promise<ApiResponse<FileItem[]>> => {
     return apiFetch("/files")
   },
 
