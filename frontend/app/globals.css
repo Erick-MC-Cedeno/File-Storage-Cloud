@@ -237,6 +237,18 @@
   animation: blue-pulse 2s ease-in-out infinite;
 }
 
+/* Neon primary button used across auth forms */
+.neon-btn {
+  background-color: var(--neon-blue) !important;
+  color: white !important;
+  border: 1px solid rgba(64, 160, 255, 0.2) !important;
+  box-shadow: var(--neon-glow-blue);
+}
+.neon-btn:hover {
+  background-color: var(--neon-light-blue) !important;
+}
+
+
 /* Cyberpunk upload area */
 .neon-upload {
   background: radial-gradient(circle at center, rgba(0, 128, 255, 0.02) 0%, transparent 70%),

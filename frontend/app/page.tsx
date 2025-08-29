@@ -2,43 +2,27 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Shield, Cloud, Lock, Zap } from "lucide-react"
+import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      {/* Header */}
-      <header className="container mx-auto px-4 py-6">
-        <nav className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Cloud className="h-8 w-8 text-blue-600" />
-            <span className="text-2xl font-bold text-gray-900 dark:text-white">File Storage Cloud</span>
-          </div>
-          <div className="flex items-center space-x-4">
-            <Link href="/login">
-              <Button variant="ghost">Sign In</Button>
-            </Link>
-            <Link href="/signup">
-              <Button>Get Started</Button>
-            </Link>
-          </div>
-        </nav>
-      </header>
+    <div className="min-h-screen bg-background neon-dashboard">
+      <DashboardHeader />
 
-      {/* Hero Section */}
-      <main className="container mx-auto px-4 py-16">
+      <main className="container mx-auto px-4 py-16 relative z-10">
         <div className="text-center space-y-8">
           <div className="space-y-4">
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white text-balance">
+            <h1 className="text-4xl md:text-6xl font-bold neon-title">
               Secure Cloud Storage
-              <span className="text-blue-600"> Made Simple</span>
+              <span className="text-neon-light-blue"> Made Simple</span>
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto text-pretty">
+            <p className="text-xl neon-subtitle max-w-2xl mx-auto">
               Store, organize, and manage all your files in the cloud with enterprise-grade security and privacy
               protection. Access your files anywhere, anytime.
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
             <Link href="/signup">
               <Button size="lg" className="w-full sm:w-auto">
                 Start Free Today
@@ -54,9 +38,9 @@ export default function HomePage() {
 
         {/* Features Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-20">
-          <Card className="text-center">
+          <Card className="text-center neon-card">
             <CardHeader>
-              <Shield className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+              <Shield className="h-12 w-12 text-neon-blue mx-auto mb-4" />
               <CardTitle>Secure Storage</CardTitle>
             </CardHeader>
             <CardContent>
@@ -66,9 +50,9 @@ export default function HomePage() {
             </CardContent>
           </Card>
 
-          <Card className="text-center">
+          <Card className="text-center neon-card">
             <CardHeader>
-              <Cloud className="h-12 w-12 text-green-600 mx-auto mb-4" />
+              <Cloud className="h-12 w-12 text-neon-light-blue mx-auto mb-4" />
               <CardTitle>Cloud Access</CardTitle>
             </CardHeader>
             <CardContent>
@@ -78,7 +62,7 @@ export default function HomePage() {
             </CardContent>
           </Card>
 
-          <Card className="text-center">
+          <Card className="text-center neon-card">
             <CardHeader>
               <Lock className="h-12 w-12 text-purple-600 mx-auto mb-4" />
               <CardTitle>Privacy First</CardTitle>
@@ -90,7 +74,7 @@ export default function HomePage() {
             </CardContent>
           </Card>
 
-          <Card className="text-center">
+          <Card className="text-center neon-card">
             <CardHeader>
               <Zap className="h-12 w-12 text-orange-600 mx-auto mb-4" />
               <CardTitle>Fast Upload</CardTitle>
@@ -105,8 +89,8 @@ export default function HomePage() {
 
         {/* CTA Section */}
         <div className="text-center mt-20 space-y-6">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Ready to get started?</h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
+          <h2 className="text-3xl font-bold neon-title">Ready to get started?</h2>
+          <p className="text-lg neon-subtitle">
             Join thousands of users who trust File Storage Cloud with their important files.
           </p>
           <Link href="/signup">
@@ -115,10 +99,9 @@ export default function HomePage() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm mt-20">
+      <footer className="border-t bg-background/60 backdrop-blur-sm mt-20">
         <div className="container mx-auto px-4 py-8">
-          <div className="text-center text-gray-600 dark:text-gray-400">
+          <div className="text-center text-muted-foreground">
             <p>&copy; 2024 File Storage Cloud. All rights reserved.</p>
           </div>
         </div>
