@@ -58,7 +58,9 @@ File-Storage-Cloud is a secure and scalable cloud-based file storage solution de
    ```
 
    ```bash
-  npm start
+  npm srun dev 
+   or 
+  pnpm run dev
  ```
 
 
