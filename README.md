@@ -62,8 +62,25 @@ File-Storage-Cloud is a secure and scalable cloud-based file storage solution de
  ```
 
 
-## api endpoints
 
+ ## Screenshots
+
+
+ # Main Page
+![main](./frontend/assets/screenshots//main.png)  
+
+
+# Register page
+![register](./frontend/assets/screenshots/register.png)
+
+
+# Dashboard
+ ![dashboard](./frontend/assets/screenshots/dashboard.png)
+
+
+
+
+## api endpoints
 
 
 ### Auth Routes
