@@ -1,5 +1,5 @@
 // API configuration and base functions
-const API_BASE_URL = "https://curly-journey-x795wpw94v42qjq-4000.app.github.dev/api"
+const API_BASE_URL = "https://refactored-fiesta-jj5q5599vxr3jj4p-4000.app.github.dev/api"
 
 export interface User {
   id: string

@@ -35,7 +35,14 @@ const uploadFile = async (req, res) => {
     const filePath = path.join(uploadDir, uniqueFileName)
     fs.writeFileSync(filePath, file.buffer)
 
-    const fileDoc = new File({ fileName: uniqueFileName, filePath, userId, mimetype: file.mimetype })
+    const fileDoc = new File({
+      fileName: uniqueFileName,
+      originalName: file.originalname,
+      filePath,
+      userId,
+      mimetype: file.mimetype,
+      size: file.size,
+    })
     await fileDoc.save()
 
     res.status(201).json({ message: "Archivo subido correctamente", fileId: fileDoc._id, fileName: uniqueFileName })
@@ -81,14 +88,19 @@ const deleteFile = async (req, res) => {
 const getAllFiles = async (req, res) => {
   try {
     const userId = req.user._id
-    const files = await File.find({ userId }).select("_id fileName mimetype createdAt").sort({ createdAt: -1 })
+    const files = await File.find({ userId })
+      .select("_id fileName originalName mimetype size createdAt")
+      .sort({ createdAt: -1 })
 
     // Transform files to match frontend FileItem interface
     const transformedFiles = files.map((file) => ({
       id: file._id.toString(),
       filename: file.fileName,
-      mimetype: file.mimetype,
-      createdAt: file.createdAt,
+      originalName: file.originalName || file.fileName,
+      mimetype: file.mimetype || "application/octet-stream",
+      size: file.size || 0,
+      uploadedAt: file.createdAt,
+      userId: file.userId?.toString?.() || undefined,
     }))
 
     res.status(200).json({
