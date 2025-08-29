@@ -20,28 +20,23 @@ export function middleware(request: NextRequest) {
   const authCookie = request.cookies.get("auth-storage")
   let isAuthenticated = false
 
-  console.log("[v0] Middleware - pathname:", pathname)
-  console.log("[v0] Middleware - authCookie:", authCookie?.value)
+  // debug logs removed
 
   if (authCookie) {
     try {
-      const authData = JSON.parse(authCookie.value)
-      console.log("[v0] Middleware - parsed authData:", authData)
-
-      isAuthenticated = authData?.state?.isAuthenticated || authData?.isAuthenticated || false
-      console.log("[v0] Middleware - isAuthenticated:", isAuthenticated)
+  const authData = JSON.parse(authCookie.value)
+  isAuthenticated = authData?.state?.isAuthenticated || authData?.isAuthenticated || false
     } catch (error) {
       // Invalid cookie data
-      console.log("[v0] Middleware - cookie parse error:", error)
       isAuthenticated = false
     }
   }
 
-  console.log("[v0] Middleware - final decision:", { isProtectedRoute, isAuthenticated })
+  // final decision
 
   // Redirect unauthenticated users from protected routes to login
   if (isProtectedRoute && !isAuthenticated) {
-    console.log("[v0] Middleware - redirecting to login")
+  // redirecting to login
     const loginUrl = new URL("/login", request.url)
     loginUrl.searchParams.set("redirect", pathname)
     return NextResponse.redirect(loginUrl)
@@ -49,11 +44,11 @@ export function middleware(request: NextRequest) {
 
   // Redirect authenticated users from auth pages to dashboard
   if ((pathname === "/login" || pathname === "/signup") && isAuthenticated) {
-    console.log("[v0] Middleware - redirecting to dashboard")
+  // redirecting to dashboard
     return NextResponse.redirect(new URL("/dashboard", request.url))
   }
 
-  console.log("[v0] Middleware - allowing request to continue")
+  // allowing request to continue
   return NextResponse.next()
 }
 

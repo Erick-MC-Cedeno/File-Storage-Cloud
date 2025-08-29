@@ -58,12 +58,7 @@ export function SignupForm() {
     }
 
     try {
-      console.log("[v0] Form data before signup:", {
-        fullName: formData.fullName,
-        username: formData.username,
-        password: "***hidden***",
-        gender: formData.gender,
-      })
+      // debug logs removed
 
       await signup({
         fullName: formData.fullName,
@@ -77,8 +72,7 @@ export function SignupForm() {
         description: "Account created successfully",
       })
       router.push("/dashboard")
-    } catch (error) {
-      console.error("[v0] Signup error:", error)
+  } catch (error) {
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Signup failed",

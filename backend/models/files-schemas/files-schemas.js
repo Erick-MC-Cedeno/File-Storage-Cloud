@@ -12,6 +12,4 @@ const fileSchema = new mongoose.Schema({
 
 const File = mongoose.model('File', fileSchema);
 
-console.log('File model created:', File);
-
 export default File;

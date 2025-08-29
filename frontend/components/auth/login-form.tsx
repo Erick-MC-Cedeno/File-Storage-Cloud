@@ -39,39 +39,42 @@ export function LoginForm() {
     }
 
     try {
-      console.log("[v0] Starting login process...")
-
-      console.log("[v0] Checking server connectivity...")
+      // Check server health first
       try {
         await healthApi.check()
-        console.log("[v0] Server is reachable")
       } catch (healthError) {
-        console.error("[v0] Server health check failed:", healthError)
         toast({
-          title: "Connection Error",
-          description: "Cannot connect to server. Please check if the server is running.",
+          title: "Error de conexión",
+          description: "No se puede conectar al servidor. Por favor verifica que esté en funcionamiento.",
           variant: "destructive",
         })
         return
       }
 
       await login(formData.username, formData.password)
-      console.log("[v0] Login successful, checking auth state...")
 
+      // Redirect after successful login
       setTimeout(() => {
-        console.log("[v0] Attempting redirect to:", redirectTo)
         window.location.href = redirectTo
       }, 200)
 
       toast({
-        title: "Success",
-        description: "Logged in successfully",
+        title: "Éxito",
+        description: "Has iniciado sesión correctamente",
       })
     } catch (error) {
-      console.log("[v0] Login failed:", error)
+      // Present friendly messages for known cases
+      const err: any = error
+      const status = err?.status
+      let message = err?.message || "Credenciales incorrectas"
+
+      if (status === 400) {
+        message = "Credenciales incorrectas"
+      }
+
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Login failed",
+        description: message,
         variant: "destructive",
       })
     }

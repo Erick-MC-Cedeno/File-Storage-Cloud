@@ -10,16 +10,15 @@ export default function DashboardPage() {
   const { files, isLoading, fetchFiles, downloadFile } = useFiles()
 
   const handleUploadComplete = () => {
-    console.log("Upload completed successfully")
-    fetchFiles() // Refresca la lista después de subir archivos
+  // Upload completed
+  fetchFiles() // Refresca la lista después de subir archivos
   }
 
   const handleDownloadClick = async (id: string, filename: string) => {
     try {
       await downloadFile(id, filename)
-      console.log("Downloaded file:", id, filename)
     } catch (error) {
-      console.error("Download failed:", error)
+  // Download failed
     }
   }
 
@@ -42,7 +41,7 @@ export default function DashboardPage() {
 
           <FileUpload onUploadComplete={handleUploadComplete} />
 
-          <FileList files={files} onDownloadClick={handleDownloadClick} />
+          <FileList files={files} />
         </div>
       </main>
     </div>

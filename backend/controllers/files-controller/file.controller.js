@@ -47,12 +47,9 @@ const uploadFile = async (req, res) => {
 
     res.status(201).json({ message: "Archivo subido correctamente", fileId: fileDoc._id, fileName: uniqueFileName })
   } catch (error) {
-    console.error("Error in uploadFile:", error.message)
-    res.status(500).json({ message: "Error interno del servidor" })
+  res.status(500).json({ message: "Error interno del servidor" })
   }
 }
-
-
 
 // Download file
 const getFile = async (req, res) => {
@@ -62,12 +59,9 @@ const getFile = async (req, res) => {
 
     res.download(fileDoc.filePath, fileDoc.fileName)
   } catch (error) {
-    console.error("Error in getFile:", error.message)
-    res.status(500).json({ message: "Error interno del servidor" })
+  res.status(500).json({ message: "Error interno del servidor" })
   }
 }
-
-
 
 // Delete file
 const deleteFile = async (req, res) => {
@@ -83,12 +77,9 @@ const deleteFile = async (req, res) => {
 
     res.status(200).json({ message: "File deleted successfully" })
   } catch (error) {
-    console.error("Error in deleteFile:", error.message)
-    res.status(500).json({ message: "Internal server error" })
+  res.status(500).json({ message: "Internal server error" })
   }
 }
-
-
 
 // Get all files for user
 const getAllFiles = async (req, res) => {
@@ -115,7 +106,6 @@ const getAllFiles = async (req, res) => {
       message: "Files retrieved successfully",
     })
   } catch (error) {
-    console.error("Error in getAllFiles:", error.message)
     res.status(500).json({
       success: false,
       message: "Error interno del servidor",

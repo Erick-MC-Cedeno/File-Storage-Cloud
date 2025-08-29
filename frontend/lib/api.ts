@@ -67,7 +67,11 @@ async function apiFetch<T = any>(endpoint: string, options: RequestInit = {}, re
         errorData = { message: `HTTP error! status: ${response.status}` }
       }
 
-      throw new Error(errorData?.message ?? `HTTP error! status: ${response.status}`)
+      // Support both `message` and `error` keys from different backends
+  const errMsg = errorData?.message ?? errorData?.error ?? `HTTP error! status: ${response.status}`
+  const err = new Error(errMsg) as any
+  err.status = response.status
+  throw err
     }
 
     let responseData: T

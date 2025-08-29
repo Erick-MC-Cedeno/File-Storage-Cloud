@@ -51,12 +51,13 @@ export const useAuth = create<AuthState>()(
           const userData = await authApi.login({ username, password })
 
           // Map server response to User interface
+          const d: any = userData as any
           const user: User = {
-            id: userData._id || userData.id,
-            fullName: userData.fullName,
-            username: userData.username,
-            gender: userData.gender,
-            createdAt: userData.createdAt || new Date().toISOString(),
+            id: d._id || d.id || d?.data?._id || "",
+            fullName: d.fullName || d?.data?.fullName || "",
+            username: d.username || d?.data?.username || "",
+            gender: d.gender || d?.data?.gender || "",
+            createdAt: d.createdAt || d?.data?.createdAt || new Date().toISOString(),
           }
 
           set({
@@ -66,7 +67,11 @@ export const useAuth = create<AuthState>()(
           })
         } catch (error) {
           set({ isLoading: false })
-          throw error
+          // Normalize common auth errors for UI
+          if (error instanceof Error) {
+            throw new Error(error.message || "Nombre de usuario o contraseña incorrectos")
+          }
+          throw new Error("Nombre de usuario o contraseña incorrectos")
         }
       },
 
